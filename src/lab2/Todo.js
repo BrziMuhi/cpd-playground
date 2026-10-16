@@ -10,6 +10,8 @@ export default function Todo() {
     { id: '2', title: 'Finish Lab 2', done: false },
   ]);
 
+  const [filter, setFilter] = useState('all');
+
   const [text, setText] = useState('');
 
   const addTodo = () => {
@@ -41,6 +43,19 @@ export default function Todo() {
 
 const remaining = todos.filter(todo => !todo.done).length;
 
+
+const visibleTodos = todos.filter(todo => {
+  if (filter === 'active') {
+    return !todo.done;
+  }
+
+  if (filter === 'done') {
+    return todo.done;
+  }
+
+  return true;
+});
+
   return (
     <View style={styles.screen}>
 
@@ -59,10 +74,47 @@ const remaining = todos.filter(todo => !todo.done).length;
 
       <Text>{remaining} left</Text>
 
+
+      
+<View style={styles.row}>
+
+  <Pressable
+    style={[
+      styles.button,
+      filter === 'all' && { backgroundColor: 'green' }
+    ]}
+    onPress={() => setFilter('all')}
+  >
+    <Text style={styles.buttonText}>All</Text>
+  </Pressable>
+
+  <Pressable
+    style={[
+      styles.button,
+      filter === 'active' && { backgroundColor: 'green' }
+    ]}
+    onPress={() => setFilter('active')}
+  >
+    <Text style={styles.buttonText}>Active</Text>
+  </Pressable>
+
+  <Pressable
+    style={[
+      styles.button,
+      filter === 'done' && { backgroundColor: 'green' }
+    ]}
+    onPress={() => setFilter('done')}
+  >
+    <Text style={styles.buttonText}>Done</Text>
+  </Pressable>
+
+</View>
+
+
       {todos.length === 0 ? (
         <Text>No tasks yet</Text>
       ) : (
-        todos.map(todo => (
+        visibleTodos.map(todo => (
           <View key={todo.id} style={styles.row}>
 
             <Pressable
