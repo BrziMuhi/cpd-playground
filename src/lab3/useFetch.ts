@@ -1,8 +1,12 @@
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export function useFetch(url) {
-  const [result, setResult] = useState({
+export function useFetch<T>(url: string) {
+  const [result, setResult] = useState<{
+    url: string | null;
+    data: T | null;
+    error: string | null;
+  }>({
     url: null,
     data: null,
     error: null
@@ -19,11 +23,11 @@ export function useFetch(url) {
           throw new Error('Failed to load data');
         }
 
-        const json = await res.json();
+        const json: T = (await res.json()) as T;
 
         if (!ignore) {
           setResult({
-            url: url,
+            url,
             data: json,
             error: null
           });
@@ -32,9 +36,11 @@ export function useFetch(url) {
       } catch (e) {
         if (!ignore) {
           setResult({
-            url: url,
+            url,
             data: null,
-            error: e.message
+            error: e instanceof Error
+              ? e.message
+              : 'Unknown error'
           });
         }
       }

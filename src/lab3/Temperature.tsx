@@ -3,7 +3,11 @@ import { useContext } from 'react';
 import { Text } from 'react-native';
 import { UnitsContext } from './UnitsContext';
 
-export default function Temperature({ celsius }) {
+type TemperatureProps = {
+  celsius: number;
+};
+
+export default function Temperature({ celsius }: TemperatureProps) {
   const unit = useContext(UnitsContext);
 
   const value = unit === 'C'

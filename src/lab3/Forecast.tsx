@@ -1,13 +1,31 @@
 
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
+
+import type { City } from './cities';
 import { forecastUrl } from './cities';
 import Temperature from './Temperature';
 import { useFetch } from './useFetch';
 
+type ForecastProps = {
+  city: City;
+};
 
+type ForecastResponse = {
+  daily: {
+    time: string[];
+    temperature_2m_min: number[];
+    temperature_2m_max: number[];
+  };
+};
 
-export default function Forecast({ city }) {
-  const { data, loading, error } = useFetch(forecastUrl(city));
+export default function Forecast({ city }: ForecastProps) {
+  const { data, loading, error } =
+    useFetch<ForecastResponse>(forecastUrl(city));
 
   if (loading) {
     return <ActivityIndicator size="small" />;
@@ -27,19 +45,24 @@ export default function Forecast({ city }) {
 
       {data.daily.time.map((date, i) => (
         <View key={date} style={styles.row}>
+
           <Text style={styles.date}>{date}</Text>
 
-                
-        <Text style={styles.temperature}>
-        <Temperature celsius={data.daily.temperature_2m_min[i]} />
-        {' / '}
-        <Temperature celsius={data.daily.temperature_2m_max[i]} />
-        </Text>
-        
+          <View style={styles.temperatures}>
+            <Temperature
+              celsius={data.daily.temperature_2m_min[i]}
+            />
+
+            <Text> / </Text>
+
+            <Temperature
+              celsius={data.daily.temperature_2m_max[i]}
+            />
+          </View>
+
         </View>
       ))}
     </View>
-    
   );
 }
 
@@ -58,13 +81,15 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
     gap: 10,
   },
   date: {
     fontSize: 14,
   },
-  temperature: {
-    fontSize: 14,
+  temperatures: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

@@ -1,5 +1,12 @@
 
-export const CITIES = [
+export type City = {
+  id: string;
+  name: string;
+  lat: number;
+  lon: number;
+};
+
+export const CITIES: City[] = [
   { id: 'sarajevo', name: 'Sarajevo', lat: 43.86, lon: 18.41 },
   { id: 'mostar', name: 'Mostar', lat: 43.34, lon: 17.81 },
   { id: 'banja-luka', name: 'Banja Luka', lat: 44.77, lon: 17.19 },
@@ -10,12 +17,12 @@ export const CITIES = [
 
 const API = 'https://api.open-meteo.com/v1/forecast';
 
-export function currentUrl(city) {
+export function currentUrl(city: City): string {
   return `${API}?latitude=${city.lat}&longitude=${city.lon}`
     + '&current=temperature_2m,wind_speed_10m';
 }
 
-export function forecastUrl(city) {
+export function forecastUrl(city: City): string {
   return `${API}?latitude=${city.lat}&longitude=${city.lon}`
     + '&daily=temperature_2m_max,temperature_2m_min'
     + '&timezone=Europe%2FSarajevo&forecast_days=3';
