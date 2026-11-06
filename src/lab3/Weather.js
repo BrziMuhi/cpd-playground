@@ -7,17 +7,33 @@ import {
     Text,
     View
 } from 'react-native';
+import Forecast from './Forecast';
+import Temperature from './Temperature';
+import { UnitsContext } from './UnitsContext';
 
 import { CITIES, currentUrl } from './cities';
 import { useFetch } from './useFetch';
 
 export default function Weather() {
   const [city, setCity] = useState(CITIES[0]);
+  const [unit, setUnit] = useState('C');
 
   const { data, loading, error } = useFetch(currentUrl(city));
 
-  return (
+     
+
+return (
+  <UnitsContext value={unit}>
     <View style={styles.container}>
+
+      <Pressable
+        style={styles.unitButton}
+        onPress={() => setUnit(unit === 'C' ? 'F' : 'C')}
+      >
+        <Text style={styles.buttonText}>
+          Switch to °{unit === 'C' ? 'F' : 'C'}
+        </Text>
+      </Pressable>
 
       <View style={styles.cityButtons}>
         {CITIES.map((item) => (
@@ -44,23 +60,34 @@ export default function Weather() {
       ) : error ? (
         <Text>{error}</Text>
       ) : data ? (
-        <View style={styles.weather}>
-          <Text style={styles.city}>{city.name}</Text>
+        <View style={{ width: '100%', paddingHorizontal: 20 }}>
 
-          <Text style={styles.temperature}>
-            {data.current.temperature_2m} °C
-          </Text>
+          <View style={styles.weather}>
+            <Text style={styles.city}>{city.name}</Text>
 
-          <Text style={styles.wind}>
-            Wind {data.current.wind_speed_10m} km/h
-          </Text>
+            
+                <Text style={styles.temperature}>
+                <Temperature celsius={data.current.temperature_2m} />
+                </Text>
+
+
+            <Text style={styles.wind}>
+              Wind {data.current.wind_speed_10m} km/h
+            </Text>
+          </View>
+
+          <Forecast city={city} />
+
         </View>
       ) : (
         <Text>No weather data available</Text>
       )}
 
     </View>
-  );
+  </UnitsContext>
+);
+
+
 }
 
 const styles = StyleSheet.create({
@@ -104,4 +131,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
   },
+
+  unitButton: {
+  backgroundColor: '#16a34a',
+  padding: 12,
+  borderRadius: 8,
+  marginBottom: 25,
+},
 });
