@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
+    Pressable,
     StyleSheet,
     Text,
     View
@@ -13,51 +14,94 @@ export default function Weather() {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [city, setCity] = useState(CITIES[0]);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch(currentUrl(CITIES[0]));
+  
+useEffect(() => {
+  let ignore = false;
 
-        if (!res.ok) {
-          throw new Error('Failed to load weather');
-        }
+  async function load() {
+    try {
+      const res = await fetch(currentUrl(city));
 
-        const json = await res.json();
+      if (!res.ok) {
+        throw new Error('Failed to load weather');
+      }
+
+      const json = await res.json();
+
+      if (!ignore) {
         setWeather(json.current);
+        setError(null);
+      }
 
-      } catch (e) {
+    } catch (e) {
+      if (!ignore) {
         setError(e.message);
+      }
 
-      } finally {
+    } finally {
+      if (!ignore) {
         setLoading(false);
       }
     }
+  }
 
-    load();
-  }, []);
+  load();
 
-  return (
-    <View style={styles.container}>
-      {loading ? (
-        <ActivityIndicator size="large" />
-      ) : error ? (
-        <Text>{error}</Text>
-      ) : (
-        <View style={styles.weather}>
-          <Text style={styles.city}>Sarajevo</Text>
+  return () => {
+    ignore = true;
+  };
+}, [city]);
 
-          <Text style={styles.temperature}>
-            {weather.temperature_2m} °C
+    
+return (
+  <View style={styles.container}>
+
+    <View style={styles.cityButtons}>
+      {CITIES.map((item) => (
+        <Pressable
+          key={item.id}
+          style={[
+            styles.button,
+            city.id === item.id && styles.selectedButton
+          ]}
+          onPress={() => {
+            if (city.id === item.id) return;
+
+            setLoading(true);
+            setError(null);
+            setCity(item);
+          }}
+        >
+          <Text style={styles.buttonText}>
+            {item.name}
           </Text>
-
-          <Text style={styles.wind}>
-            Wind {weather.wind_speed_10m} km/h
-          </Text>
-        </View>
-      )}
+        </Pressable>
+      ))}
     </View>
-  );
+
+    {loading ? (
+      <ActivityIndicator size="large" />
+    ) : error ? (
+      <Text>{error}</Text>
+    ) : (
+      <View style={styles.weather}>
+        <Text style={styles.city}>{city.name}</Text>
+
+        <Text style={styles.temperature}>
+          {weather.temperature_2m} °C
+        </Text>
+
+        <Text style={styles.wind}>
+          Wind {weather.wind_speed_10m} km/h
+        </Text>
+      </View>
+    )}
+
+  </View>
+);
+
 }
 
 const styles = StyleSheet.create({
@@ -81,4 +125,25 @@ const styles = StyleSheet.create({
   wind: {
     fontSize: 20,
   },
+
+  cityButtons: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  gap: 10,
+  marginBottom: 30,
+  paddingHorizontal: 15,
+},
+button: {
+  backgroundColor: '#64748b',
+  padding: 10,
+  borderRadius: 8,
+},
+selectedButton: {
+  backgroundColor: '#2563eb',
+},
+buttonText: {
+  color: 'white',
+  fontSize: 14,
+},
 });
